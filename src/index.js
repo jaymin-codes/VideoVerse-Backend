@@ -1,5 +1,6 @@
 // require('dotenv').config({path: './env'})
 import dotenv from "dotenv";
+import { app } from "./app.js";
 import connectDB from "./db/db.js";
 
 dotenv.config({
@@ -24,6 +25,14 @@ connectDB()
     console.log("MongoDB connection FAILED !!", err);
   });
 
+
+
+
+
+
+
+
+  
 /*
 here all code is in one file, it works same but its better to make a db.js
 import express from "express";

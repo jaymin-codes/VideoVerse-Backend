@@ -1,5 +1,5 @@
 const asyncHandler = (requestHandler) => {
-  (req, res, next) => {
+  return (req, res, next) => {
     Promise.resolve(requestHandler(req, res, next)).catch((err) => next(err));
   };
 };
@@ -7,9 +7,10 @@ const asyncHandler = (requestHandler) => {
 export { asyncHandler };
 
 
-
-
-
+//here we did not return as we didnt use {}
+// const asyncHandler5 = (fn) => (req, res, next) => {
+//   Promise.resolve(fn(req, res, next)).catch(next);
+// };
 
 
 //this is higher order that accepts function as parameter or returns a function or both
