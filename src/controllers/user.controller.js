@@ -16,7 +16,6 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
     const x = await user.save({ validateBeforeSave: false });
     // console.log("2",user.refreshToken);
-    console.log(x, "here");
     return { accessToken, refreshToken };
   } catch (error) {
     throw new ApiError(
@@ -188,7 +187,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 //
 //
 //@desc    New access token from refresh token
-//@route   POST /api/users/logout
+//@route   POST /api/users/refresh-token
 const newAccessToken = asyncHandler(async (req, res) => {
   // get refresh token from cookies in frontend
   // get refresh token from db
@@ -240,4 +239,49 @@ const newAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, loginUser, logoutUser, newAccessToken };
+//
+//
+//@desc    Change current user password
+//@route   PUT /api/users/change-password
+const changeCurrentUserPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user?._id);
+
+  const isOldPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+  if (!isOldPasswordCorrect) {
+    throw new ApiError(400, "Invalid old password");
+  }
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
+});
+
+//
+//
+//@desc    Get current user
+//@route   PUT /api/users/current-user
+const getCurrentUser = asyncHandler(async (req, res) => {
+//  console.log(req.user); 
+ return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
+    
+});
+
+//
+//
+//
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  newAccessToken,
+  changeCurrentUserPassword,
+  getCurrentUser,
+};

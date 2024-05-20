@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  changeCurrentUserPassword,
+  getCurrentUser,
   loginUser,
   logoutUser,
   newAccessToken,
@@ -29,5 +31,8 @@ router.route("/login").post(loginUser);
 //secured routes
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-token").post(newAccessToken);
+router.route("/change-password").patch(verifyJWT, changeCurrentUserPassword);
+router.route("/current-user").get(verifyJWT, getCurrentUser);
+
 
 export default router;
