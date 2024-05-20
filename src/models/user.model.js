@@ -43,7 +43,7 @@ const userSchema = new Schema(
       required: [true, "Password is requried"],
     },
     refreshToken: {
-      type: String,z
+      type: String,
     },
   },
   { timestamps: true }
@@ -57,16 +57,16 @@ const userSchema = new Schema(
 //use salting for better security
 
 userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
+  if (!this.isModified("password")) {
     return next();
   }
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-userSchema.methods.isPasswordCorrect = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
+userSchema.methods.isPasswordCorrect = async function(password){
+    return await bcrypt.compare(password, this.password)
+}
 
 //jwt token generation
 userSchema.methods.generateAccessToken = function () {

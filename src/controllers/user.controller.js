@@ -46,10 +46,13 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "Username or email already registered");
   }
 
-  // upload middleware(multer)
+  // upload middleware, req.files(multer)
   // check for images, avatar image compulsory
   const avatarLocalPath = req.files?.avatar[0]?.path;
-
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar image is required");
+  }
+  
   let coverImageLocalPath;
   if (
     req.files &&
@@ -57,10 +60,6 @@ const registerUser = asyncHandler(async (req, res) => {
     req.files.coverImage.length > 0
   ) {
     coverImageLocalPath = req.files.coverImage[0].path;
-  }
-
-  if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar image is required");
   }
 
   // upload images to cloudinary
@@ -100,13 +99,13 @@ const registerUser = asyncHandler(async (req, res) => {
 //
 //@desc    Login User
 //@route   POST /api/users/login
-
 const loginUser = asyncHandler(async (req, res) => {
   // input from req.body
   const { email, userName, password } = req.body;
+  // console.log(email);
 
   // check for fields empty or not
-  if (!userName || !email) {
+  if (!userName && !email) {
     throw new ApiError(400, "Email or Username required");
   }
 
@@ -119,10 +118,11 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   // password check
-  const passwordCheck = await user.isPasswordCorrect(password);
-  if (!passwordCheck) {
-    throw new ApiError("401", "Password is not correct");
-  }
+  const isPasswordValid = await user.isPasswordCorrect(password)
+
+  if (!isPasswordValid) {
+   throw new ApiError(401, "Invalid user credentials")
+   }
 
   // access and refresh token
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(

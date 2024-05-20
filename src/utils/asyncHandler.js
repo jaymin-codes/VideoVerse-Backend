@@ -13,8 +13,8 @@ export { asyncHandler };
 // };
 
 
-//this is higher order that accepts function as parameter or returns a function or both
-//taking func as parameter for async handler, taking another function that takes parameters for func
+// this is higher order that accepts function as parameter or returns a function or both
+// taking func as parameter for async handler, taking another function that takes parameters for func
 // the asyncHandler takes a function normal func and returns an asynchronous func.
 
 //using try catch
