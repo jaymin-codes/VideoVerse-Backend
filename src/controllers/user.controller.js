@@ -2,7 +2,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  uploadOnCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -75,7 +78,9 @@ const registerUser = asyncHandler(async (req, res) => {
   const newUser = await User.create({
     fullName,
     avatar: avatar.url,
+    avatarPublicId: avatar.public_id,
     coverImage: coverImage?.url || "",
+    coverImagePublicId: coverImage?.public_id || "",
     userName: userName.toLowerCase(),
     email,
     password,
@@ -304,8 +309,9 @@ const updateAccountdetails = asyncHandler(async (req, res) => {
 //
 //
 //@desc   Update avatar image
-//@route  PUT /api/users/update-avatar
+//@route  PATCH /api/users/update-avatar
 const updateUserAvatar = asyncHandler(async (req, res) => {
+  //upload new avatar image
   const avatarLocalPath = req.file?.path;
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar image is missing");
@@ -315,10 +321,19 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Error while uploading avatar");
   }
 
+  //delete old avatar image
+  const { avatarPublicId } = await User.findById(req.user?._id);
+  const del = await deleteFromCloudinary(avatarPublicId);
+  console.log(del);
+  if (!del) {
+    throw new ApiError(400, "Error deleting avatar image");
+  }
+
+  //updating user object
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
-      $set: { avatar: avatar.url },
+      $set: { avatar: avatar.url, avatarPublicId: avatar.public_id },
     },
     {
       new: true,
@@ -333,22 +348,37 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 //
 //
 //@desc   Update cover image
-//@route  PUT /api/users/update-coverImg
+//@route  PATCH /api/users/update-coverImg
 const updateUserCoverImage = asyncHandler(async (req, res) => {
+  // upload new cover image
   const coverImageLocalPath = req.file?.path;
   if (!coverImageLocalPath) {
     throw new ApiError(400, "Cover image is missing");
   }
-
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
   if (!coverImage?.url) {
     throw new ApiError(400, "Error while uploading cover image");
   }
 
+  //delete old cover image
+  const { coverImagePublicId } = await User.findById(req.user?._id);
+  if (coverImagePublicId) {
+    console.log(coverImagePublicId);
+    const del = await deleteFromCloudinary(coverImagePublicId);
+    console.log(del);
+    if (!del) {
+      throw new ApiError(400, "Error deleting cover image");
+    }
+  }
+
+  // updating user object
   const user = await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: { coverImage: coverImage.url },
+      $set: {
+        coverImage: coverImage.url,
+        coverImagePublicId: coverImage.public_id,
+      },
     },
     {
       new: true,

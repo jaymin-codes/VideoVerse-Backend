@@ -8,7 +8,6 @@ cloudinary.config({
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
-
   try {
     if (!localFilePath) {
       return null;
@@ -21,14 +20,25 @@ const uploadOnCloudinary = async (localFilePath) => {
     // console.log("File is uploaded on cloudinary ", res.url);
     fs.unlinkSync(localFilePath);
 
-    // console.log(res);
     return res;
-    
   } catch (error) {
     fs.unlinkSync(localFilePath); //remove the temp file from server ass upload operation failed
     return null;
-
   }
 };
 
-export { uploadOnCloudinary };
+const deleteFromCloudinary = async (oldAvatarPublicId) => {
+  try {
+    if (!oldAvatarPublicId) {
+      return null;
+    }
+    const res = await cloudinary.uploader.destroy(oldAvatarPublicId, {
+      resource_type: 'image',
+    });
+    return res;
+  } catch (error) {
+    return null;
+  }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };

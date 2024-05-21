@@ -29,7 +29,13 @@ const userSchema = new Schema(
       type: String, //cloudinary url
       required: true,
     },
+    avatarPublicId: {
+      type: String,
+    },
     coverImage: {
+      type: String,
+    },
+    coverImagePublicId: {
       type: String,
     },
     watchHistory: [
@@ -49,9 +55,6 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-
-
-
 //cant use arrow function as here it doesnt have this ref
 //pre allows us to alter data before saving it to databse
 //use salting for better security
@@ -64,9 +67,9 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password, this.password)
-}
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 //jwt token generation
 userSchema.methods.generateAccessToken = function () {
