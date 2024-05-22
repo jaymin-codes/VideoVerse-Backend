@@ -28,8 +28,6 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
-//
-//
 //@desc    Register a new user
 //@route   POST /api/users/register
 const registerUser = asyncHandler(async (req, res) => {
@@ -102,8 +100,6 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, createdUser, "User registered successfully"));
 });
 
-//
-//
 //@desc    Login User
 //@route   POST /api/users/login
 const loginUser = asyncHandler(async (req, res) => {
@@ -160,8 +156,6 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
-//
-//
 //@desc    Logout User
 //@route   POST /api/users/logout
 const logoutUser = asyncHandler(async (req, res) => {
@@ -189,8 +183,6 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User logout successfull"));
 });
 
-//
-//
 //@desc    New access token from refresh token
 //@route   POST /api/users/refresh-token
 const newAccessToken = asyncHandler(async (req, res) => {
@@ -244,8 +236,6 @@ const newAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-//
-//
 //@desc    Change current user password
 //@route   PATCH /api/users/change-password
 const changeCurrentUserPassword = asyncHandler(async (req, res) => {
@@ -267,8 +257,6 @@ const changeCurrentUserPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
-//
-//
 //@desc    Get current user
 //@route   GET /api/users/current-user
 const getCurrentUser = asyncHandler(async (req, res) => {
@@ -278,8 +266,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });
 
-//
-//
 //@desc   Update account details
 //@route  PATCH /api/users/update-user
 const updateAccountdetails = asyncHandler(async (req, res) => {
@@ -306,8 +292,6 @@ const updateAccountdetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Account updated successfully"));
 });
 
-//
-//
 //@desc   Update avatar image
 //@route  PATCH /api/users/update-avatar
 const updateUserAvatar = asyncHandler(async (req, res) => {
@@ -345,8 +329,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Avatar image updated successfully"));
 });
 
-//
-//
 //@desc   Update cover image
 //@route  PATCH /api/users/update-coverImg
 const updateUserCoverImage = asyncHandler(async (req, res) => {
@@ -390,9 +372,66 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
 
-//
-//
-//
+//@desc   User's profile page/channel
+//@route
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { userName } = req.params;
+
+  if (!userName?.trim()) {
+    throw new ApiError(400, "username is missing");
+  }
+
+  const channel = await User.aggregate([
+    {
+      $match: {
+        userName: userName,
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers",
+        },
+        channelsSubscribedToCount: {
+          $size: "$subscribedTo",
+        },
+        isSubscribed: {
+          $in: [req.user?._id, "$subscribedTo.channel"], //important doubt here
+        },
+      },
+    },
+    {
+      $project: {
+        fullName: 1,
+        userName: 1,
+        subscribersCount: 1,
+        channelsSubscribedToCount: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1,
+        isSubscribed: 1,
+      },
+    },
+  ]); //remember: channel and subscriber are both user. just playing diffrent role
+  console.log(channel);
+});
+
 export {
   registerUser,
   loginUser,
@@ -403,4 +442,5 @@ export {
   updateAccountdetails,
   updateUserAvatar,
   updateUserCoverImage,
+  getUserChannelProfile,
 };

@@ -33,7 +33,7 @@ const deleteFromCloudinary = async (oldAvatarPublicId) => {
       return null;
     }
     const res = await cloudinary.uploader.destroy(oldAvatarPublicId, {
-      resource_type: 'image',
+      resource_type: "image",
     });
     return res;
   } catch (error) {
