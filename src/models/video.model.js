@@ -40,6 +40,6 @@ const videoSchema = new Schema(
   { timestamps: true }
 );
 
-videoSchema.plugin(mongooseAggregatePaginate);
+videoSchema.plugin(mongooseAggregatePaginate);//how many videos to send in a particular api call to help in pagiantion in frontend
 
 export const Video = mongoose.model("Video", videoSchema);
