@@ -372,8 +372,8 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
 
-//@desc   User's profile page/channel
-//@route
+//@desc   User's profile page or channel page
+//@route  
 const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { userName } = req.params;
 
@@ -430,6 +430,13 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     },
   ]); //remember: channel and subscriber are both user. just playing diffrent role
   console.log(channel);
+
+  if (!channel?.length) {
+    throw new ApiError(404, "Channel does not exist")
+  }
+
+  return res.status(200)
+  .json(new ApiResponse(200, channel[0], "User channel fetched successfully"))
 });
 
 export {
