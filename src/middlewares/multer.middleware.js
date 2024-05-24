@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
     // cb(null, file.fieldname + "-" + uniqueSuffix);
 
     cb(null, file.originalname); //we are keeping the original name of the file given by user
-    //this may give problem when user uplaod multipe files with same name
+    //this may give problem when user upload multipe files with same name
   },
 });
 

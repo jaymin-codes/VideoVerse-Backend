@@ -7,3 +7,4 @@ Backend in javascript.
 
 # Changes
 -> change uploaded file name in middleware -> multer.js  (PENDING)
+-> add file upload handler in multer (PENDING)

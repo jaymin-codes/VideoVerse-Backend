@@ -27,12 +27,12 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-const deleteFromCloudinary = async (oldAvatarPublicId) => {
+const deleteImageFromCloudinary = async (imagePublicId) => {
   try {
-    if (!oldAvatarPublicId) {
+    if (!imagePublicId) {
       return null;
     }
-    const res = await cloudinary.uploader.destroy(oldAvatarPublicId, {
+    const res = await cloudinary.uploader.destroy(imagePublicId, {
       resource_type: "image",
     });
     return res;
@@ -41,4 +41,22 @@ const deleteFromCloudinary = async (oldAvatarPublicId) => {
   }
 };
 
-export { uploadOnCloudinary, deleteFromCloudinary };
+const deleteVideoFromCloudinary = async (videoPublicId) => {
+  try {
+    if (!videoPublicId) {
+      return null;
+    }
+    const res = await cloudinary.uploader.destroy(videoPublicId, {
+      resource_type: "video",
+    });
+    return res;
+  } catch (error) {
+    return null;
+  }
+};
+
+export {
+  uploadOnCloudinary,
+  deleteImageFromCloudinary,
+  deleteVideoFromCloudinary,
+};

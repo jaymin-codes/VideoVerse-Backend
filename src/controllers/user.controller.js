@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import {
   uploadOnCloudinary,
-  deleteFromCloudinary,
+  deleteImageFromCloudinary
 } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
@@ -70,7 +70,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
   if (!avatar) {
-    throw new ApiError(400, "Avatar image is required");
+    throw new ApiError(400, "Error while uploading avatar image.");
   }
 
   // create user object - create entry in db
@@ -308,10 +308,9 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
   //delete old avatar image
   const { avatarPublicId } = await User.findById(req.user?._id);
-  const del = await deleteFromCloudinary(avatarPublicId);
-  console.log(del);
+  const del = await deleteImageFromCloudinary(avatarPublicId);
   if (!del) {
-    throw new ApiError(400, "Error deleting avatar image");
+    throw new ApiError(400, "Error while deleting avatar image");
   }
 
   //updating user object
@@ -347,7 +346,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   const { coverImagePublicId } = await User.findById(req.user?._id);
   if (coverImagePublicId) {
     console.log(coverImagePublicId);
-    const del = await deleteFromCloudinary(coverImagePublicId);
+    const del = await deleteImageFromCloudinary(coverImagePublicId);
     console.log(del);
     if (!del) {
       throw new ApiError(400, "Error deleting cover image");
