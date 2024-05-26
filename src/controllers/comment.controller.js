@@ -10,7 +10,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid VideoId");
   }
 
-  const { page = 2, limit = 2 } = req.query;
+  const { page = 1, limit = 2 } = req.query;
 
   const comments = await Comment.find({ video: videoId })
     .limit(limit)
