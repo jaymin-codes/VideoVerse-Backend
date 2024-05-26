@@ -15,7 +15,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
   const comments = await Comment.find({ video: videoId })
     .limit(limit)
     .skip(limit * (page - 1));
-  if (!comments) {
+  if (!comments.length === 0) {
     throw new ApiError(400, "No comments yet");
   }
 
@@ -53,7 +53,7 @@ const addComment = asyncHandler(async (req, res) => {
 
 const updateComment = asyncHandler(async (req, res) => {
   const { commentId, comment } = req.body;
-  if (!req.body) {
+  if (!commentId || !comment) {
     throw new ApiError(400, "CommentId and comment are required");
   }
   if (!mongoose.isValidObjectId(commentId)) {
