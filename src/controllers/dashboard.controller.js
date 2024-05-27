@@ -20,8 +20,8 @@ const getChannelStats = asyncHandler(async (req, res) => {
     },
     {
       $project: {
-        _id: 0, // Exclude the _id field
-        totalViews: 1, // Include only the totalViews field
+        _id: 0, 
+        totalViews: 1, 
       },
     },
   ]);
@@ -29,17 +29,21 @@ const getChannelStats = asyncHandler(async (req, res) => {
     throw new ApiError(500, "error while getting subscriber count");
   }
 
+
+
   const totalSubscribers = await Subscription.where({
     channel: req.user?._id,
   }).countDocuments();
-  if (!totalSubscribers) {
+  if (!totalSubscribers && totalSubscribers!=0) {
     throw new ApiError(500, "error while getting subscriber count");
   }
 
+
+  
   const totalVideos = await Video.where({
     owner: req.user?._id,
   }).countDocuments();
-  if (!totalVideos) {
+  if (!totalVideos && totalVideos!=0) {
     throw new ApiError(500, "error while getting video count");
   }
 
@@ -75,8 +79,8 @@ const getChannelStats = asyncHandler(async (req, res) => {
   const stats = {
     total_subscribers: totalSubscribers,
     total_videos: totalVideos,
-    total_views: totalViews[0].totalViews,
-    total_likes_video: totalVideoLikes[0].videoLikes,
+    total_views: totalViews[0]?.totalViews || 0,
+    total_likes_video: totalVideoLikes[0]?.videoLikes || 0,
   };
 
   return res
