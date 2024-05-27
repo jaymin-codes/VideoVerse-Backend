@@ -7,7 +7,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getChannelStats = asyncHandler(async (req, res) => {
-  // TODO: Get the channel stats like total video views, total subscribers, total videos, total likes etc.
+  // TODO: total views PENDING
 
   const totalSubscribers = await Subscription.where({
     channel: req.user?._id,
