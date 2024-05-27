@@ -107,10 +107,17 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid video ID, video not found");
   }
 
-  const video = await Video.findById(videoId);
+  const video = await Video.findByIdAndUpdate(
+    videoId, 
+    {
+      $inc: {views: 1}
+    }
+  );
   if (!video) {
     throw new ApiError(404, "Video not found");
   }
+
+  await video.save({ validateBeforeSave: false });
 
   return res
     .status(200)

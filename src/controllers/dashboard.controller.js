@@ -7,7 +7,27 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getChannelStats = asyncHandler(async (req, res) => {
-  // TODO: total views PENDING
+
+  const totalViews = await Video.aggregate([
+    {
+      $match: { owner: new mongoose.Types.ObjectId(req.user?._id) },
+    },
+    {
+      $group: {
+        _id: null, //ensure that there is only one group for all documents
+        totalViews: { $sum: "$views" },
+      },
+    },
+    {
+      $project: {
+        _id: 0, // Exclude the _id field
+        totalViews: 1, // Include only the totalViews field
+      },
+    },
+  ]);
+  if (!totalViews) {
+    throw new ApiError(500, "error while getting subscriber count");
+  }
 
   const totalSubscribers = await Subscription.where({
     channel: req.user?._id,
@@ -40,13 +60,13 @@ const getChannelStats = asyncHandler(async (req, res) => {
     },
     {
       $group: {
-        _id: null,
+        _id: null, //ensure that there is only one group for all documents
         videoLikes: { $sum: 1 },
       },
     },
     {
       $project: {
-        _id: 0, //ensure that there is only one group for all documents
+        _id: 0,
         videoLikes: 1,
       },
     },
@@ -55,6 +75,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
   const stats = {
     total_subscribers: totalSubscribers,
     total_videos: totalVideos,
+    total_views: totalViews[0].totalViews,
     total_likes_video: totalVideoLikes[0].videoLikes,
   };
 
