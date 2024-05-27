@@ -10,19 +10,50 @@ import {
   deleteVideoFromCloudinary,
 } from "../utils/cloudinary.js";
 
-const getAllVideos = asyncHandler(async (req, res) => {
+const getAllVideos = asyncHandler(async (req, res) => { //PENDING
   //TODO: get all videos based on query, sort, pagination
   const { page = 1, limit = 2, query, sortBy, sortType, userId } = req.query;
 
   // const count = await Video.countDocuments();
 
-  const videos = await Video.find()
+  const allVideos = await Video.find()
     .limit(limit)
     .skip(limit * (page - 1));
 
+  const x = await Promise.all(//will wait for every task to complete
+    allVideos.map(async (video) => {
+      const addOwnerDetails = await Video.aggregate([
+        {
+          $match: { _id: new mongoose.Types.ObjectId(video._id) },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner",
+            pipeline: [
+              {
+                //taking only these fields of owner(user)
+                $project: {
+                  fullName: 1,
+                  userName: 1,
+                  avatar: 1,
+                },
+              },
+            ],
+          },
+        },
+      ]);
+      // console.log(addOwnerDetails[0]);
+      return addOwnerDetails[0]
+    })
+  )
+
+  // console.log(x);
   return res
     .status(200)
-    .json(new ApiResponse(200, videos, "Videos fetched successfully"))
+    .json(new ApiResponse(200, x, "Videos fetched successfully"));
 });
 
 //@desc    publish a new video
