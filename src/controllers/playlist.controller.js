@@ -37,6 +37,9 @@ const createPlaylist = asyncHandler(async (req, res) => {
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
   const { userId } = req.params;
+  if (!isValidObjectId(userId)) {
+    throw new ApiError(400, "Invalid user id");
+  }
 
   const playlists = await Playlist.find({ owner: userId });
 
@@ -71,6 +74,9 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
   if (!playlistId || !videoId) {
     throw new ApiError(400, "playlisdId and videoId are required");
   }
+   if (!isValidObjectId(videoId) || !isValidObjectId(playlistId)) {
+    throw new ApiError(400, "Invalid video or playlist id");
+  }
 
   const addVideo = await Playlist.findByIdAndUpdate(
     playlistId,
@@ -91,6 +97,9 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
   if (!playlistId || !videoId) {
     throw new ApiError(400, "playlisdId and videoId are required");
+  }
+  if (!isValidObjectId(videoId) || !isValidObjectId(playlistId)) {
+    throw new ApiError(400, "Invalid video or playlist id");
   }
 
   const removeVideo = await Playlist.findByIdAndUpdate(
@@ -129,7 +138,10 @@ const updatePlaylist = asyncHandler(async (req, res) => {
   if (!name || !description) {
     throw new ApiError(400, "name and description are required")
   }
-  
+  if (!isValidObjectId(playlistId)) {
+    throw new ApiError(400, "Invalid playlist id");
+  }
+
   const updatedPlaylist = await Playlist.findByIdAndUpdate(
     playlistId,
     {
